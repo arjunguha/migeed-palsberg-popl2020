@@ -42,7 +42,7 @@ instance Show Vtype where
     showsPrec n = \case
         Tint  -> showString "int"
         Tbool -> showString "bool" 
-        Tdyn -> showChar '*'  
+        Tdyn -> showString "any"
         Tfun a b -> showParen (n > fun_prec) (
             showsPrec (fun_prec + 1) a 
             . showString " -> " 
@@ -53,17 +53,22 @@ instance Show Vtype where
 instance Show Expr where
     showsPrec n = \case
         Vi i -> shows i
-        Vb b -> shows b
+        Vb True -> showString "true"
+        Vb False -> showString "false"
         Vv x -> showString x
         Lam typ x term -> showParen (n > lam_prec) (
-            showString "λ" 
+            showString "fun " 
             .showString x 
             .showString " : "
             . showsPrec 0 typ
             .showString " . " 
             . showsPrec lam_prec term
             )
-
+        App (App (Vv "+") e1) e2 -> showParen (n > app_prec) (
+            showsPrec (app_prec + 1) e1
+            .showString " + "
+            .showsPrec (app_prec + 1) e2
+            )
         App e1 e2 -> showParen (n > fun_prec) (
             showsPrec fun_prec e1
             . showString " " 
@@ -72,4 +77,5 @@ instance Show Expr where
 
         where 
             lam_prec = 9
-            fun_prec = 10
+            fun_prec = 11
+            app_prec = 10

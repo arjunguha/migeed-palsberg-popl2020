@@ -13,8 +13,9 @@ import Data.Maybe
 main = do
     args <- getArgs
     text <- T.readFile (head args)
-    print tenv
     case parse parseMigeed (head args) text of
         Left error -> print error
-        Right program -> print $ fromJust $ closestMaximalMigration_n program 5 tenv
+        Right program -> do
+          -- putStrLn (show program)
+          print $ fromJust $ closestMaximalMigration_n program 5 tenv
 
